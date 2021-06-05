@@ -7,20 +7,19 @@ import { LangVariant, ScryfallPrices } from "types";
 import { MTGCard } from "models/MTGCard";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
-import { User } from 'models/User'
+import { User } from "models/User";
 import mongoose from "mongoose";
 dotenv.config();
 
 //Connect to the DB
 const mongoUrl =
-    process.env.MONGO_URI ||
-    `mongodb://localhost:27017/mtgtracker`;
+    process.env.MONGO_URI || `mongodb://localhost:27017/mtgtracker`;
 mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
 
-console.log(mongoUrl)
+console.log(mongoUrl);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", function () {
@@ -47,7 +46,7 @@ export type FakerMTGItem = {
     language: LangVariant;
     foil: boolean;
     item: FakerMTGCardObject;
-    name:string;
+    name: string;
 };
 
 const fetchCardFromScryfall = async () => {
@@ -65,7 +64,7 @@ const fetchCardFromScryfall = async () => {
         return null;
     }
 };
-export const createNewRandomCard = async () => {
+export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
     try {
         const newCard = await fetchCardFromScryfall();
         const {
@@ -84,7 +83,7 @@ export const createNewRandomCard = async () => {
             scryfallId: id,
             tcgplayerId: tcgplayer_id,
             oracleId: oracle_id,
-            image: image_uris?.normal || '',
+            image: image_uris?.normal || "",
             scryfallPrices: prices,
             cardName: name,
             expansion: set,
@@ -102,7 +101,7 @@ export const createNewRandomCard = async () => {
             quantity: faker.datatype.number({ min: 1, max: 4 }),
             language: "EN",
             foil: faker.datatype.boolean(),
-            name
+            name,
         };
         return newItem;
     } catch (error) {
@@ -114,7 +113,12 @@ export const createNewRandomCard = async () => {
     }
 };
 
-export const createNewCollection = async (size: number) => {
+export const createNewCollection = async (
+    size: number
+): Promise<{
+    byId: Record<string, FakerMTGItem> | null;
+    ordered: FakerMTGItem[] | null;
+}> => {
     const cards: Record<string, FakerMTGItem> = {};
     const ordered: FakerMTGItem[] = [];
     try {
@@ -139,7 +143,10 @@ export const createNewCollection = async (size: number) => {
     }
 };
 
-export const collectionToJSON = async (fileName: string, size: number) => {
+export const collectionToJSON = async (
+    fileName: string,
+    size: number
+): Promise<boolean> => {
     try {
         const { byId: collection } = await createNewCollection(size);
         fs.writeFileSync(`${fileName}.json`, JSON.stringify(collection));
@@ -153,17 +160,17 @@ export const collectionToJSON = async (fileName: string, size: number) => {
     }
 };
 
-export const collectionToMongoDB = async (size: number) => {
+export const collectionToMongoDB = async (size: number): Promise<boolean> => {
     try {
         const { ordered: cards } = await createNewCollection(size);
         if (!cards) throw new Error("Could not build a collection");
-        let testUser = await User.findOne({userName:'testUser'})
-        if(!testUser){
+        let testUser = await User.findOne({ userName: "testUser" });
+        if (!testUser) {
             testUser = await User.create({
-                userName:'testUser',
-                email:'test@test.com',
-                cardCollections:[]
-            })
+                userName: "testUser",
+                email: "test@test.com",
+                cardCollections: [],
+            });
         }
         let testCollection = await MTGCollection.findOne({
             name: "testCollection",
@@ -171,12 +178,12 @@ export const collectionToMongoDB = async (size: number) => {
         if (!testCollection) {
             testCollection = await MTGCollection.create({
                 name: "testCollection",
-                cards:[],
-                owner: testUser
+                cards: [],
+                owner: testUser,
             });
         }
-        
-        console.log(testCollection, 'TESTCOLLECTION')
+
+        console.log(testCollection, "TESTCOLLECTION");
         await Promise.all(
             cards.map(async (card) => {
                 let dbCard = await MTGCard.findOne({
@@ -185,8 +192,14 @@ export const collectionToMongoDB = async (size: number) => {
                 if (!dbCard) {
                     dbCard = await MTGCard.create(card.item);
                 }
-                const { buyPrice, targetPrice, quantity, language, foil, name } =
-                    card;
+                const {
+                    buyPrice,
+                    targetPrice,
+                    quantity,
+                    language,
+                    foil,
+                    name,
+                } = card;
                 const newItem = await CollectionItem.create({
                     buyPrice,
                     targetPrice,
@@ -196,23 +209,26 @@ export const collectionToMongoDB = async (size: number) => {
                     name,
                     item: dbCard,
                     cardCollection: testCollection,
-                    owner: testUser
+                    owner: testUser,
                 });
-                if(!testCollection) throw new Error('Something went wrong creating test collection')
-                await testCollection.cards.push(newItem)
+                if (!testCollection)
+                    throw new Error(
+                        "Something went wrong creating test collection"
+                    );
+                await testCollection.cards.push(newItem);
             })
         );
-        await testCollection.save()
-        console.log("Collection successfully created")
-        return true
+        await testCollection.save();
+        console.log("Collection successfully created");
+        return true;
     } catch (error) {
         console.log(
             error,
             "Something went wrong creating a dummy collection on MDB"
         );
-        return false
+        return false;
     }
 };
 
 // collectionToJSON("test", 10);
-collectionToMongoDB(200).then(()=>process.exit())
+collectionToMongoDB(200).then(() => process.exit());

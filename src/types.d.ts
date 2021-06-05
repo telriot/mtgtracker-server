@@ -1,4 +1,4 @@
-expiort type Price = string | null
+export type Price = string | null;
 export type LangVariant =
 	| 'EN'
 	| 'CN'

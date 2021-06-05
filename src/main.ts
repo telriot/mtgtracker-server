@@ -44,10 +44,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "../../mtgtracker-client/public")));
 
+if(!process.env.SESSION_SECRET) throw new Error('No session secret found')
 // Sessions
 app.use(
     session({
-        secret: process.env.SESSION_SECRET!,
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({ mongoUrl }),
@@ -69,9 +70,9 @@ app.use("/api/collections", collectionsRouter);
 // }
 
 // Get port from environment and store in Express.
-var port = process.env.PORT || "5000";
+const port = process.env.PORT || "5000";
 app.set("port", port);
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 server.listen(port);
 server.on("error", (error) => onError(error, port));
