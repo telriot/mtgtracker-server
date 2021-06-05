@@ -1,0 +1,230 @@
+{
+    "a36cd0c3-1955-41b1-9a9c-b30b31a2f094": {
+        "item": {
+            "cardmarketId": 20675,
+            "scryfallId": "a36cd0c3-1955-41b1-9a9c-b30b31a2f094",
+            "tcgplayerId": 28584,
+            "oracleId": "975b4e0f-1133-4ffa-a6b1-d319d248dcde",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/a/3/a36cd0c3-1955-41b1-9a9c-b30b31a2f094.jpg?1562802806",
+            "scryfallPrices": {
+                "usd": "0.11",
+                "usd_foil": "0.92",
+                "eur": "0.20",
+                "eur_foil": "0.48",
+                "tix": "0.03"
+            },
+            "cardName": "Parasitic Strix",
+            "expansion": "con"
+        },
+        "buyPrice": 50,
+        "targetPrice": 75,
+        "quantity": 4,
+        "language": "EN",
+        "foil": true
+    },
+    "efddad21-553e-4947-80d2-833b42c45f77": {
+        "item": {
+            "cardmarketId": 364309,
+            "scryfallId": "efddad21-553e-4947-80d2-833b42c45f77",
+            "tcgplayerId": 176875,
+            "oracleId": "03e04034-48b5-4f1f-9859-2b46dedf4d8b",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/e/f/efddad21-553e-4947-80d2-833b42c45f77.jpg?1572893945",
+            "scryfallPrices": {
+                "usd": "0.02",
+                "usd_foil": "0.17",
+                "eur": "0.02",
+                "eur_foil": "0.06",
+                "tix": "0.03"
+            },
+            "cardName": "Vernadi Shieldmate",
+            "expansion": "grn"
+        },
+        "buyPrice": 72,
+        "targetPrice": 108,
+        "quantity": 4,
+        "language": "EN",
+        "foil": true
+    },
+    "56916cf4-3bd5-4e93-91cc-579c2b3aaeb0": {
+        "item": {
+            "cardmarketId": 289328,
+            "scryfallId": "56916cf4-3bd5-4e93-91cc-579c2b3aaeb0",
+            "tcgplayerId": 116879,
+            "oracleId": "00de57d2-7cb6-4337-9bc6-f6711e4dfabf",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/5/6/56916cf4-3bd5-4e93-91cc-579c2b3aaeb0.jpg?1562910907",
+            "scryfallPrices": {
+                "usd": null,
+                "usd_foil": "3.40",
+                "eur": null,
+                "eur_foil": "2.40",
+                "tix": null
+            },
+            "cardName": "Game Trail",
+            "expansion": "psoi"
+        },
+        "buyPrice": 24,
+        "targetPrice": 36,
+        "quantity": 3,
+        "language": "EN",
+        "foil": true
+    },
+    "3382b240-b477-410d-aee8-898fe0e934ef": {
+        "item": {
+            "cardmarketId": 247152,
+            "scryfallId": "3382b240-b477-410d-aee8-898fe0e934ef",
+            "tcgplayerId": 47289,
+            "oracleId": "02520741-d7f0-46e6-acbe-010b65fc24c0",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/3/3/3382b240-b477-410d-aee8-898fe0e934ef.jpg?1592713926",
+            "scryfallPrices": {
+                "usd": "1.29",
+                "usd_foil": null,
+                "eur": "0.25",
+                "eur_foil": null,
+                "tix": "0.03"
+            },
+            "cardName": "Angel of Despair",
+            "expansion": "cmd"
+        },
+        "buyPrice": 90,
+        "targetPrice": 135,
+        "quantity": 2,
+        "language": "EN",
+        "foil": true
+    },
+    "902c9b72-170c-4c25-a966-a55d689daae8": {
+        "item": {
+            "cardmarketId": 16330,
+            "scryfallId": "902c9b72-170c-4c25-a966-a55d689daae8",
+            "tcgplayerId": 15245,
+            "oracleId": "09d01406-b529-4c3b-900e-d8c889a4c400",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/9/0/902c9b72-170c-4c25-a966-a55d689daae8.jpg?1562551620",
+            "scryfallPrices": {
+                "usd": "5.00",
+                "usd_foil": "25.00",
+                "eur": "1.46",
+                "eur_foil": "15.32",
+                "tix": "0.01"
+            },
+            "cardName": "Phage the Untouchable",
+            "expansion": "10e"
+        },
+        "buyPrice": 16,
+        "targetPrice": 24,
+        "quantity": 3,
+        "language": "EN",
+        "foil": false
+    },
+    "0d828c7c-4e55-40be-a96f-48101e407aef": {
+        "item": {
+            "cardmarketId": 453813,
+            "scryfallId": "0d828c7c-4e55-40be-a96f-48101e407aef",
+            "tcgplayerId": 212367,
+            "oracleId": "1bd26692-c030-4493-883e-2d26b3a1d025",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/0/d/0d828c7c-4e55-40be-a96f-48101e407aef.jpg?1591320382",
+            "scryfallPrices": {
+                "usd": "0.02",
+                "usd_foil": null,
+                "eur": "0.02",
+                "eur_foil": null,
+                "tix": null
+            },
+            "cardName": "Whiplash Trap",
+            "expansion": "c20"
+        },
+        "buyPrice": 28,
+        "targetPrice": 42,
+        "quantity": 2,
+        "language": "EN",
+        "foil": true
+    },
+    "fd8897b2-0ef2-4812-9772-cd99c5ce5586": {
+        "item": {
+            "cardmarketId": 242558,
+            "scryfallId": "fd8897b2-0ef2-4812-9772-cd99c5ce5586",
+            "tcgplayerId": 36327,
+            "oracleId": "56719f6a-1a6c-4c0a-8d21-18f7d7350b68",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/f/d/fd8897b2-0ef2-4812-9772-cd99c5ce5586.jpg?1562825551",
+            "scryfallPrices": {
+                "usd": "0.13",
+                "usd_foil": "0.90",
+                "eur": "0.16",
+                "eur_foil": "15.00",
+                "tix": "0.03"
+            },
+            "cardName": "Swamp",
+            "expansion": "som"
+        },
+        "buyPrice": 56,
+        "targetPrice": 84,
+        "quantity": 3,
+        "language": "EN",
+        "foil": false
+    },
+    "dc6deb57-4ee3-4716-8644-28283704f994": {
+        "item": {
+            "cardmarketId": 12850,
+            "scryfallId": "dc6deb57-4ee3-4716-8644-28283704f994",
+            "tcgplayerId": 12292,
+            "oracleId": "a7cb1da6-e56a-42b6-8087-cf822783373f",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/d/c/dc6deb57-4ee3-4716-8644-28283704f994.jpg?1562880219",
+            "scryfallPrices": {
+                "usd": "0.10",
+                "usd_foil": "0.26",
+                "eur": "0.03",
+                "eur_foil": "0.10",
+                "tix": "0.03"
+            },
+            "cardName": "Kami of Tattered Shoji",
+            "expansion": "bok"
+        },
+        "buyPrice": 90,
+        "targetPrice": 135,
+        "quantity": 2,
+        "language": "EN",
+        "foil": true
+    },
+    "8dbd5eeb-6571-4b78-9f4a-32d58a23a4f9": {
+        "item": {
+            "scryfallId": "8dbd5eeb-6571-4b78-9f4a-32d58a23a4f9",
+            "oracleId": "e822bf3d-3a29-4a02-9ae8-e2830ce70f15",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/8/d/8dbd5eeb-6571-4b78-9f4a-32d58a23a4f9.jpg?1562254447",
+            "scryfallPrices": {
+                "usd": null,
+                "usd_foil": null,
+                "eur": null,
+                "eur_foil": null,
+                "tix": "1.44"
+            },
+            "cardName": "Plant Elemental",
+            "expansion": "pz2"
+        },
+        "buyPrice": 80,
+        "targetPrice": 120,
+        "quantity": 3,
+        "language": "EN",
+        "foil": true
+    },
+    "d9422b79-2bc5-4d0a-8f91-157d9fc09641": {
+        "item": {
+            "cardmarketId": 379,
+            "scryfallId": "d9422b79-2bc5-4d0a-8f91-157d9fc09641",
+            "tcgplayerId": 11668,
+            "oracleId": "1a1a16e5-ce4f-42b8-a1c6-05dd635d83cc",
+            "image": "https://c1.scryfall.com/file/scryfall-cards/normal/front/d/9/d9422b79-2bc5-4d0a-8f91-157d9fc09641.jpg?1562639912",
+            "scryfallPrices": {
+                "usd": "0.76",
+                "usd_foil": "4.54",
+                "eur": "0.20",
+                "eur_foil": "3.20",
+                "tix": "0.01"
+            },
+            "cardName": "Aether Snap",
+            "expansion": "dst"
+        },
+        "buyPrice": 40,
+        "targetPrice": 60,
+        "quantity": 4,
+        "language": "EN",
+        "foil": false
+    }
+}
