@@ -1,8 +1,9 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { LangVariant } from "types";
+import { model, Schema, Document } from "mongoose";
+import { LangVariant, IPaginatedModel } from "types";
 import { IMTGCard } from "models/MTGCard";
 import { IMTGCollection } from "models/MTGCollection";
 import { IUser } from "models/User";
+import mongoosePaginate from 'mongoose-paginate-v2'
 
 export interface ICollectionItem extends Document {
     id: string;
@@ -34,7 +35,9 @@ const CollectionItemSchema: Schema = new Schema({
     },
 });
 
-export const CollectionItem = mongoose.model<ICollectionItem>(
+CollectionItemSchema.plugin(mongoosePaginate);
+
+export const CollectionItem : IPaginatedModel<ICollectionItem> = model<ICollectionItem>(
     "CollectionItem",
     CollectionItemSchema
-);
+) as IPaginatedModel<ICollectionItem>;
