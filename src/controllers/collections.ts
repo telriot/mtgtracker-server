@@ -17,7 +17,8 @@ export const getCollection = async (params: {
     };
 };
 export const getCardsFromCollection = async (
-    collectionId: string, query: ParsedQs
+    collectionId: string,
+    query: ParsedQs
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
     const nameRegExp = new RegExp(query.cardName?.toString() || "", "ig");
     const collection = await MTGCollection.findOne({ _id: collectionId });
@@ -42,12 +43,33 @@ export const getCardsFromCollection = async (
 };
 
 export const deleteCardFromCollection = async (
-    collectionId:string, cardId: string, query: ParsedQs
+    collectionId: string,
+    cardId: string,
+    query: ParsedQs
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
+    await CollectionItem.deleteOne({ _id: cardId });
+    const { cards } = await getCardsFromCollection(collectionId, query);
+    return {
+        message: "Card successfully deleted",
+        cards,
+    };
+};
 
-    console.log(query, 'QUERY')
-    await CollectionItem.deleteOne({_id: cardId})
-    const {cards} = await getCardsFromCollection(collectionId, query)
+export const updateCardFromCollection = async (
+    collectionId: string,
+    cardId: string,
+    body: {
+        update: {
+            buyPrice?: number;
+            targetPrice?: number;
+            foil?: boolean;
+            quantity?: number;
+        };
+        query: Record<string, any>;
+    }
+): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
+    await CollectionItem.updateOne({ _id: cardId }, body.update);
+    const { cards } = await getCardsFromCollection(collectionId, body.query);
     return {
         message: "Card successfully deleted",
         cards,
