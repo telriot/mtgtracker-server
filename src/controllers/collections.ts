@@ -160,6 +160,19 @@ export const deleteCardFromCollection = async (
     };
 };
 
+export const deleteManyFromCollection = async (
+    collectionId: string,
+    query: ParsedQs
+) : Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
+    console.log(collectionId, 'COLLECTIONID', query)
+    await CollectionItem.deleteMany({_id: {$in: query.cardIds as string[]}});
+    const { cards } = await getCardsFromCollection(collectionId, query);
+    return {
+        message: "Cards successfully deleted",
+        cards,
+    };
+};
+
 export const updateCardFromCollection = async (
     collectionId: string,
     cardId: string,

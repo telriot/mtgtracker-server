@@ -3,9 +3,10 @@ const router = express.Router();
 import { asyncErrorHandler as ASH } from "../middleware";
 import {
     addCardToCollection,
-    getCollection,
-    getCardsFromCollection,
     deleteCardFromCollection,
+    deleteManyFromCollection,
+    getCardsFromCollection,
+    getCollection,
     updateCardFromCollection,
 } from "controllers/collections";
 
@@ -33,5 +34,10 @@ router.delete(
         deleteCardFromCollection(req.params.id, req.params.cardId, req.query)
     )
 );
-
+router.delete(
+    "/:id/bulk/delete",
+    ASH((req, res, next) =>
+        deleteManyFromCollection(req.params.id, req.query)
+    )
+);
 export { router as default };
