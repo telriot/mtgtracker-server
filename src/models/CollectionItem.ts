@@ -16,6 +16,7 @@ export interface ICollectionItem extends Document {
     item: IMTGCard;
     owner: IUser;
     cardCollection: IMTGCollection;
+    lastUpdated: Date;
 }
 
 const CollectionItemSchema: Schema = new Schema({
@@ -26,6 +27,10 @@ const CollectionItemSchema: Schema = new Schema({
     quantity: Number,
     language: String,
     foil: Boolean,
+    lastUpdated: {
+        type: Date,
+        default: Date.now,
+    },
     owner: { type: Schema.Types.ObjectId, ref: "User" },
     cardCollection: { type: Schema.Types.ObjectId, ref: "MTGCollection" },
     item: { type: Schema.Types.ObjectId, ref: "MTGCard" },

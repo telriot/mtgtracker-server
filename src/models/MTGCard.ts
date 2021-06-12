@@ -11,6 +11,7 @@ export interface IMTGCard extends Document {
     expansion: string;
     image: string;
     scryfallPrices:ScryfallPrices
+    lastUpdated: Date,
 }
 
 const MTGCardSchema: Schema = new Schema({
@@ -24,6 +25,10 @@ const MTGCardSchema: Schema = new Schema({
     cardName: String,
     expansion: String,
     image: String,
+    lastUpdated: {
+        type: Date,
+        default: Date.now,
+    },
     date: {
         type: Date,
         default: Date.now,

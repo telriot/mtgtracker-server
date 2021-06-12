@@ -8,6 +8,7 @@ import { MTGCard } from "models/MTGCard";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
 import { User } from "models/User";
+import createMTGCard from 'utils/cardData/createMTGItemFromScryfallObject'
 import mongoose from "mongoose";
 dotenv.config();
 
@@ -67,27 +68,9 @@ const fetchCardFromScryfall = async () => {
 export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
     try {
         const newCard = await fetchCardFromScryfall();
-        const {
-            tcgplayer_id,
-            cardmarket_id,
-            id,
-            prices,
-            oracle_id,
-            name,
-            set,
-            image_uris,
-        } = newCard;
+        const { name } = newCard;
 
-        const mtgCardObject: FakerMTGCardObject = {
-            cardmarketId: cardmarket_id,
-            scryfallId: id,
-            tcgplayerId: tcgplayer_id,
-            oracleId: oracle_id,
-            image: image_uris?.normal || "",
-            scryfallPrices: prices,
-            cardName: name,
-            expansion: set,
-        };
+        const mtgCardObject: FakerMTGCardObject = createMTGCard(newCard)
         const buyPrice = faker.datatype.float({
             min: 1,
             max: 100,
