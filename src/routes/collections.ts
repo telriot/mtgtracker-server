@@ -6,6 +6,7 @@ import {
     deleteCardFromCollection,
     deleteManyFromCollection,
     getCardsFromCollection,
+    getCollectionSummary,
     getCollection,
     updateCardFromCollection,
 } from "controllers/collections";
@@ -13,6 +14,10 @@ import {
 router.get(
     "/:id",
     ASH((req, res, next) => getCollection(req.params))
+);
+router.get(
+    "/:id/summary",
+    ASH((req, res, next) => getCollectionSummary(req.params))
 );
 router.get(
     "/:id/cards",

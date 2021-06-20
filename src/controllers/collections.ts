@@ -29,11 +29,99 @@ export const getCollection = async (params: {
     console.log("getting collection");
     console.log(params.id, "PARAMS ID");
     const collection = await MTGCollection.findOne({ name: params.id });
+    if (!collection) {
+        throw new Error("Collection not found");
+    }
     return {
         message: "Collection successfully found",
         collection,
     };
 };
+
+
+
+export const updateCollectionData =  async (itemsToUpdate:string[]): Promise<{ message: string }> => {
+    const identifiers = itemsToUpdate.map((id) => ({ id }));
+    const updates = await getCollectionFromScryfall(identifiers);
+    await Promise.all(
+        updates.map(async (card: any) => {
+            const { usd, eur, tix, usd_foil, eur_foil } = card.prices;
+            console.log(card.prices);
+            await MTGCard.updateOne(
+                { scryfallId: card.id },
+                {
+                    prices: {
+                        usd,
+                        eur,
+                        tix,
+                        eurFoil: eur_foil,
+                        usdFoil: usd_foil,
+                    },
+                    lastUpdated: new Date(Date.now()),
+                }
+            );
+        })
+    );
+    return {message:'Collection succesfully updated'}
+}
+
+export const getCollectionSummary = async (params: {
+    [key: string]: string;
+}): Promise<{ message: string; summary: Record<string, string|number> }> => {
+    const collection = await MTGCollection.findOne({ name: params.id })
+    if (!collection) {
+        throw new Error("Collection not found");
+    }
+    const cards = await CollectionItem.find({_id: { $in: collection.cards }}).populate('item').exec()
+    // const aggregate = CollectionItem.aggregate().match({_id: { $in: collection.cards }}).lookup()
+    let maxUsd = 0,
+        minUsd = 0,
+        maxEur = 0,
+        minEur = 0,
+        totalUsd = 0,
+        totalEur = 0,
+        cardsQuantity = 0;
+            cards.forEach(card =>
+        {
+            const {scryfallPrices} = card.item
+            const usd = parseFloat(scryfallPrices.usd || '0')
+            const eur = parseFloat(scryfallPrices.eur || '0')
+            const usdFoil = parseFloat(scryfallPrices.usdFoil || '0')
+            const eurFoil = parseFloat(scryfallPrices.eurFoil || '0')
+            cardsQuantity += card.quantity
+
+            if(card.foil){
+                if(usdFoil > maxUsd) maxUsd = usdFoil
+                if(eurFoil > maxEur) maxEur = eurFoil
+                if(!minUsd || usdFoil < minUsd) minUsd = usdFoil
+                if(!minEur || eurFoil < minEur) minEur = eurFoil                
+                totalUsd += usdFoil * card.quantity
+                totalEur += eurFoil * card.quantity
+
+            } else {
+                if(usd > maxUsd) maxUsd = usd
+                if(eur > maxEur) maxEur = eur
+                if(!minUsd || usd < minUsd) minUsd = usd
+                if(!minEur || eur < minEur) minEur = eur     
+                totalUsd += usd * card.quantity
+                totalEur += eur * card.quantity
+            }
+        })
+    
+    return {
+        message: "Collection successfully found",
+        summary: {
+            maxUsd,
+            minUsd,
+            maxEur,
+            minEur,
+            totalUsd,
+            totalEur ,
+            cardsQuantity, 
+        },
+    };
+};
+
 export const getCardsFromCollection = async (
     collectionId: string,
     query: ParsedQs
@@ -62,28 +150,8 @@ export const getCardsFromCollection = async (
         .filter(Boolean) as string[];
 
     if (itemsToUpdate.length) {
-        const identifiers = itemsToUpdate.map((id) => ({ id }));
-        const updates = await getCollectionFromScryfall(identifiers);
-        // console.log(updates.length, 'UPDATES')
-        await Promise.all(
-            updates.map(async (card: any) => {
-                const { usd, eur, tix, usd_foil, eur_foil } = card.prices;
-                console.log(card.prices);
-                await MTGCard.updateOne(
-                    { scryfallId: card.id },
-                    {
-                        prices: {
-                            usd,
-                            eur,
-                            tix,
-                            eurFoil: eur_foil,
-                            usdFoil: usd_foil,
-                        },
-                        lastUpdated: new Date(Date.now()),
-                    }
-                );
-            })
-        );
+
+        await updateCollectionData(itemsToUpdate)
         cards = await CollectionItem.paginate(mongoQuery, paginationOptions);
     }
 
@@ -163,9 +231,11 @@ export const deleteCardFromCollection = async (
 export const deleteManyFromCollection = async (
     collectionId: string,
     query: ParsedQs
-) : Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
-    console.log(collectionId, 'COLLECTIONID', query)
-    await CollectionItem.deleteMany({_id: {$in: query.cardIds as string[]}});
+): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
+    console.log(collectionId, "COLLECTIONID", query);
+    await CollectionItem.deleteMany({
+        _id: { $in: query.cardIds as string[] },
+    });
     const { cards } = await getCardsFromCollection(collectionId, query);
     return {
         message: "Cards successfully deleted",
