@@ -8,7 +8,7 @@ import { MTGCard } from "models/MTGCard";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
 import { User } from "models/User";
-import createMTGCard from 'utils/cardData/createMTGItemFromScryfallObject'
+import createMTGCard from "utils/cardData/createMTGItemFromScryfallObject";
 import mongoose from "mongoose";
 dotenv.config();
 
@@ -20,7 +20,6 @@ mongoose.connect(mongoUrl, {
     useUnifiedTopology: true,
 });
 
-console.log(mongoUrl);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", function () {
@@ -55,7 +54,6 @@ const fetchCardFromScryfall = async () => {
         const { data: randomCard } = await axios.get(
             "https://api.scryfall.com/cards/random"
         );
-        console.log(randomCard.name);
         return randomCard;
     } catch (error) {
         console.error(
@@ -70,7 +68,7 @@ export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
         const newCard = await fetchCardFromScryfall();
         const { name } = newCard;
 
-        const mtgCardObject: FakerMTGCardObject = createMTGCard(newCard)
+        const mtgCardObject: FakerMTGCardObject = createMTGCard(newCard);
         const buyPrice = faker.datatype.float({
             min: 1,
             max: 100,
@@ -88,7 +86,7 @@ export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
         };
         return newItem;
     } catch (error) {
-        console.log(
+        console.error(
             error,
             "Something went wrong while creating a new card object"
         );
@@ -118,7 +116,7 @@ export const createNewCollection = async (
         );
         return { byId: cards, ordered };
     } catch (error) {
-        console.log(
+        console.error(
             error,
             "Something went wrong while creating a new collection"
         );
@@ -135,7 +133,7 @@ export const collectionToJSON = async (
         fs.writeFileSync(`${fileName}.json`, JSON.stringify(collection));
         return true;
     } catch (error) {
-        console.log(
+        console.error(
             error,
             "Something went wrong creating JSON file from collection"
         );
@@ -166,7 +164,6 @@ export const collectionToMongoDB = async (size: number): Promise<boolean> => {
             });
         }
 
-        console.log(testCollection, "TESTCOLLECTION");
         await Promise.all(
             cards.map(async (card) => {
                 let dbCard = await MTGCard.findOne({
@@ -205,7 +202,7 @@ export const collectionToMongoDB = async (size: number): Promise<boolean> => {
         console.log("Collection successfully created");
         return true;
     } catch (error) {
-        console.log(
+        console.error(
             error,
             "Something went wrong creating a dummy collection on MDB"
         );
