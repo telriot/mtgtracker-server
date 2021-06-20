@@ -17,7 +17,7 @@ router.get(
 );
 router.get(
     "/:id/summary",
-    ASH((req, res, next) => getCollectionSummary(req.params))
+    ASH((req, res, next) => getCollectionSummary(req.params.id))
 );
 router.get(
     "/:id/cards",

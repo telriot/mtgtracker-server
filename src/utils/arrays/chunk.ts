@@ -4,11 +4,18 @@
  * @param size the size of each chunk
  * @returns an array of chunks with max size equal to size param
  */
-const chunkArr= (array: any[], size:number) =>
+const chunkArr = <T>(array: T[], size:number) =>
 {
+    if(!Array.isArray(array) || !size || typeof size !=='number') 
+    {
+        return []
+    }
     const chunks = []
     for (let i=0, j=array.length; i<j; i+=size) {
         chunks.push(array.slice(i,i+size))
     }
     return chunks
 }
+
+
+export default chunkArr
