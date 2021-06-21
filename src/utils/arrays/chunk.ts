@@ -4,7 +4,7 @@
  * @param size the size of each chunk
  * @returns an array of chunks with max size equal to size param
  */
-const chunkArr = <T>(array: T[], size:number) =>
+const chunkArr = <T>(array: T[], size:number): T[][] =>
 {
     if(!Array.isArray(array) || !size || typeof size !=='number') 
     {

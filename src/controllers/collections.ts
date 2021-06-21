@@ -12,7 +12,7 @@ import { User } from "models/User";
 import chunk from "utils/arrays/chunk";
 import timeout from "utils/testTimeout";
 
-const getItemIdsToUpdate = (cards: ICollectionItem[]) =>
+const getItemIdsToUpdate = (cards: ICollectionItem[]): string[] =>
     cards
         .map((card) =>
             isOlderThan(card.item.lastUpdated, "day")
@@ -21,18 +21,22 @@ const getItemIdsToUpdate = (cards: ICollectionItem[]) =>
         )
         .filter(Boolean) as string[];
 
-export const getCardFromScryfall = async (id: string) => {
+export const getCardFromScryfall = async (
+    id: string
+): Promise<Record<string, unknown>> => {
     const { data: card } = await axios.get(
         `https://api.scryfall.com/cards/${id}`
     );
     return card;
 };
-export const getCollectionFromScryfall = async (identifiers: any[]) => {
+export const getCollectionFromScryfall = async (
+    identifiers: { id: string }[]
+): Promise<Record<string, unknown>[]> => {
     const { data: collection } = await axios.post(
         "https://api.scryfall.com/cards/collection",
         { identifiers }
     );
-    return collection.data as any[];
+    return collection.data as Record<string, unknown>[];
 };
 
 export const getCollection = async (params: {
@@ -57,7 +61,7 @@ export const updateCollectionData = async (
         index && (await timeout(100));
         const updates = await getCollectionFromScryfall(chunk);
         await Promise.all(
-            updates.map(async (card: any) => {
+            updates.map(async (card: Record<string, any>) => {
                 const { usd, eur, tix, usd_foil, eur_foil } = card.prices;
                 await MTGCard.updateOne(
                     { scryfallId: card.id },
@@ -107,8 +111,8 @@ export const getCollectionSummary = async (
         minEur = 0,
         totalUsd = 0,
         totalEur = 0,
-        cardsQuantity = 0,
-        expansions: string[] = [],
+        cardsQuantity = 0;
+    const expansions: string[] = [],
         languages: LangVariant[] = [];
 
     cards.forEach((card) => {
@@ -247,6 +251,10 @@ export const deleteCardFromCollection = async (
     query: ParsedQs
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
     await CollectionItem.deleteOne({ _id: cardId });
+    await MTGCollection.updateOne(
+        { _id: collectionId },
+        { $pull: { cards: cardId } }
+    );
     const { cards } = await getCardsFromCollection(collectionId, query);
     return {
         message: "Card successfully deleted",
@@ -258,10 +266,15 @@ export const deleteManyFromCollection = async (
     collectionId: string,
     query: ParsedQs
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
-    console.log(collectionId, "COLLECTIONID", query);
+    const ids = query.cardIds as string[];
     await CollectionItem.deleteMany({
-        _id: { $in: query.cardIds as string[] },
+        _id: { $in: ids },
     });
+    await MTGCollection.updateOne(
+        { _id: collectionId },
+        { $pull: { cards: { $in: ids } } }
+    );
+
     const { cards } = await getCardsFromCollection(collectionId, query);
     return {
         message: "Cards successfully deleted",
@@ -279,7 +292,7 @@ export const updateCardFromCollection = async (
             foil?: boolean;
             quantity?: number;
         };
-        query: Record<string, any>;
+        query: ParsedQs;
     }
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
     await CollectionItem.updateOne({ _id: cardId }, body.update);

@@ -13,36 +13,34 @@ import {
 
 router.get(
     "/:id",
-    ASH((req, res, next) => getCollection(req.params))
+    ASH((req) => getCollection(req.params))
 );
 router.get(
     "/:id/summary",
-    ASH((req, res, next) => getCollectionSummary(req.params.id))
+    ASH((req) => getCollectionSummary(req.params.id))
 );
 router.get(
     "/:id/cards",
-    ASH((req, res, next) => getCardsFromCollection(req.params.id, req.query))
+    ASH((req) => getCardsFromCollection(req.params.id, req.query))
 );
 router.post(
     "/:id/cards",
-    ASH((req, res, next) => addCardToCollection(req.params.id, req.body))
+    ASH((req) => addCardToCollection(req.params.id, req.body))
 );
 router.put(
     "/:id/:cardId",
-    ASH((req, res, next) =>
+    ASH((req) =>
         updateCardFromCollection(req.params.id, req.params.cardId, req.body)
     )
 );
 router.delete(
     "/:id/:cardId",
-    ASH((req, res, next) =>
+    ASH((req) =>
         deleteCardFromCollection(req.params.id, req.params.cardId, req.query)
     )
 );
 router.delete(
     "/:id/bulk/delete",
-    ASH((req, res, next) =>
-        deleteManyFromCollection(req.params.id, req.query)
-    )
+    ASH((req) => deleteManyFromCollection(req.params.id, req.query))
 );
 export { router as default };

@@ -1,5 +1,3 @@
-import {PaginateModel, Document} from 'mongoose'
-
 export type Price = string | null;
 export type LangVariant =
 	| 'EN'
@@ -27,5 +25,3 @@ export type ScryfallPrices =
     eurFoil: Price,
     tix: Price;
 }
-
-export interface IPaginatedModel<T extends Document> extends PaginateModel<T> {}
