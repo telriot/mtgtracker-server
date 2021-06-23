@@ -1,9 +1,13 @@
+export type MinMaxPriceQuery = {
+    $or: {
+        $and: [{ [key: string]: { [key: string]: number } }, { foil: boolean }];
+    }[];
+};
 const buildMinMaxPriceQuery = (
     targetValue: string,
     comparison: "$lte" | "$gte",
-    key: string,
-    
-) => ({
+    key: string
+): MinMaxPriceQuery => ({
     $or: [
         {
             $and: [
@@ -18,7 +22,7 @@ const buildMinMaxPriceQuery = (
         {
             $and: [
                 {
-                    [key+'Foil']: {
+                    [key + "Foil"]: {
                         [comparison]: parseFloat(targetValue),
                     },
                 },

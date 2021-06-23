@@ -1,6 +1,6 @@
 // import {MTGCollection} from 'models/MTGCollection'
 import { CollectionItem, ICollectionItem } from "models/CollectionItem";
-import { LangVariant, ScryfallData, Price } from "types";
+import { ScryfallData } from "types";
 import { PaginateResult } from "mongoose";
 import { MTGCollection, IMTGCollection } from "models/MTGCollection";
 import { ParsedQs } from "qs";
@@ -10,7 +10,8 @@ import { User } from "models/User";
 import chunk from "utils/arrays/chunk";
 import timeout from "utils/testTimeout";
 import createItemFromScryfall from "utils/cardData/createItemFromScryfall";
-import minMaxQuery from "utils/queries/buildMinMaxPriceQuery";
+import addPriceFilters from "utils/queries/addPriceFilters";
+import calcCollectionSummary from "utils/cardData/calcCollectionSummary";
 const getItemIdsToUpdate = (cards: ICollectionItem[]): string[] =>
     cards
         .map((card) =>
@@ -99,59 +100,11 @@ export const getCollectionSummary = async (
         cards = await CollectionItem.find({ _id: { $in: collection.cards } });
     }
 
-    let maxUsd = 0,
-        minUsd = 0,
-        maxEur = 0,
-        minEur = 0,
-        totalUsd = 0,
-        totalEur = 0,
-        cardsQuantity = 0;
-    const expansions: string[] = [],
-        languages: LangVariant[] = [];
-    cards.forEach((card) => {
-        const { scryfallPrices, expansion, foil } = card;
-        const { language } = card;
-        const parsePrice = (price: Price) => {
-            if (!price || isNaN(price)) return 0;
-            else return price;
-        };
-        const usd = parsePrice(scryfallPrices.usd);
-        const eur = parsePrice(scryfallPrices.eur);
-        const usdFoil = parsePrice(scryfallPrices.usdFoil);
-        const eurFoil = parsePrice(scryfallPrices.eurFoil);
-        cardsQuantity += card.quantity;
-        if (foil) {
-            if (usdFoil > maxUsd) maxUsd = usdFoil;
-            if (eurFoil > maxEur) maxEur = eurFoil;
-            if (usdFoil < minUsd) minUsd = usdFoil;
-            if (eurFoil < minEur) minEur = eurFoil;
-            totalUsd += usdFoil * card.quantity;
-            totalEur += eurFoil * card.quantity;
-        } else {
-            if (usd > maxUsd) maxUsd = usd;
-            if (eur > maxEur) maxEur = eur;
-            if (usd < minUsd) minUsd = usd;
-            if (eur < minEur) minEur = eur;
-            if (!expansions.includes(expansion)) expansions.push(expansion);
-            if (!languages.includes(language)) languages.push(language);
-            totalUsd += usd * card.quantity;
-            totalEur += eur * card.quantity;
-        }
-    });
+    const summary = calcCollectionSummary(cards);
 
     return {
-        message: "Collection successfully found",
-        summary: {
-            maxUsd,
-            minUsd,
-            maxEur,
-            minEur,
-            totalUsd: totalUsd.toFixed(2),
-            totalEur: totalEur.toFixed(2),
-            cardsQuantity,
-            expansions,
-            languages,
-        },
+        message: "Collection summary successfully produced",
+        summary,
     };
 };
 
@@ -167,31 +120,10 @@ export const getCardsFromCollection = async (
         name: nameRegExp,
     };
     const { minEur, maxEur, minUsd, maxUsd, language, expansion } = query;
+    const priceFilters = { minEur, maxEur, minUsd, maxUsd };
     if (expansion) mongoQuery.expansion = expansion.toString().toLowerCase();
     if (language) mongoQuery.language = language.toString();
-    if (minEur || maxEur || minUsd || maxUsd) {
-        mongoQuery["$and"] = [];
-        if (minEur) {
-            mongoQuery["$and"].push(
-                minMaxQuery(minEur.toString(), "$gte", "scryfallPrices.eur")
-            );
-        }
-        if (maxEur && parseInt(maxEur.toString()) > 0) {
-            mongoQuery["$and"].push(
-                minMaxQuery(maxEur.toString(), "$lte", "scryfallPrices.eur")
-            );
-        }
-        if (minUsd) {
-            mongoQuery["$and"].push(
-                minMaxQuery(minUsd.toString(), "$gte", "scryfallPrices.usd")
-            );
-        }
-        if (maxUsd && parseInt(maxUsd.toString()) > 0) {
-            mongoQuery["$and"].push(
-                minMaxQuery(maxUsd.toString(), "$lte", "scryfallPrices.usd")
-            );
-        }
-    }
+    addPriceFilters(priceFilters, mongoQuery);
 
     const sortByName = { name: "asc" };
     const paginationOptions = {
@@ -240,8 +172,6 @@ export const addCardToCollection = async (
     const newItem = await CollectionItem.create(fullItem);
     await collection.cards.push(newItem);
     await collection.save();
-
-    // await CollectionItem.create(FullItem);
     const { cards } = await getCardsFromCollection(collectionId, body.query);
     return {
         message: "Card successfully added",

@@ -1,4 +1,4 @@
-export type Price = number | null;
+export type Price = number;
 export type LangVariant =
     | "EN"
     | "CN"

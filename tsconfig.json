@@ -28,10 +28,12 @@
       "middleware/*":["./middleware/*"],
       "models/*":["./models/*"],
       "routes/*":["./routes/*"],
-      "utils/time/*":["./utils/time/*"],
       "utils/arrays/*":["./utils/arrays/*"],
       "utils/cardData/*":["./utils/cardData/*"],
+      "utils/queries/*":["./utils/queries/*"],
+      "utils/time/*":["./utils/time/*"],
       "utils/testTimeout":["./utils/testTimeout"]
+
     },
     "lib": [
       "ES6",
