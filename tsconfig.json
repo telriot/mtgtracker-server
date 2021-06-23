@@ -5,13 +5,13 @@
     "moduleResolution": "node",
     "declaration": true,
     "strict": true,
-    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
-    "strictNullChecks": true /* Enable strict null checks. */,
-    "strictFunctionTypes": true /* Enable strict checking of function types. */,
-    "noUnusedLocals": true /* Report errors on unused locals. */,
-    "noUnusedParameters": false /* Report errors on unused parameters. */,
-    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
-    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,12 +23,21 @@
       "node",
       "jest"
     ],
+    "paths": {
+      "controllers/*":["./controllers/*"],
+      "middleware/*":["./middleware/*"],
+      "models/*":["./models/*"],
+      "routes/*":["./routes/*"],
+      "utils/time/*":["./utils/time/*"],
+      "utils/arrays/*":["./utils/arrays/*"],
+      "utils/cardData/*":["./utils/cardData/*"],
+      "utils/testTimeout":["./utils/testTimeout"]
+    },
     "lib": [
       "ES6",
       "DOM"
     ],
-    "baseUrl": "./src",
-
+    "baseUrl": "./src"
   },
   "include": [
     "src/**/*.ts"

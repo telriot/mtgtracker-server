@@ -8,6 +8,7 @@ const chunkArr = <T>(array: T[], size:number): T[][] =>
 {
     if(!Array.isArray(array) || !size || typeof size !=='number') 
     {
+        console.error('Incorrect arguments to chunk.ts function')
         return []
     }
     const chunks = []

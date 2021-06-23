@@ -12,6 +12,7 @@ import collectionsRouter from "routes/collections";
 
 dotenv.config();
 const app = express();
+const mongoLocal = "mongodb://localhost:27017/mtgtracker";
 
 app.use(
     cors({
@@ -24,8 +25,9 @@ app.use(
 
 //Connect to the DB
 const mongoUrl =
-    process.env.MONGO_URI ||
-    `mongodb://localhost:27017/mtgtracker`;
+    process.env.NODE_ENV === "test"
+        ? mongoLocal
+        : process.env.MONGO_URI || mongoLocal;
 mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -44,7 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "../../mtgtracker-client/public")));
 
-if(!process.env.SESSION_SECRET) throw new Error('No session secret found')
+if (!process.env.SESSION_SECRET) throw new Error("No session secret found");
 // Sessions
 app.use(
     session({

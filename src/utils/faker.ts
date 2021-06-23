@@ -3,18 +3,16 @@ import faker from "faker";
 import axios from "axios";
 import fs from "fs";
 import testTimeout from "utils/testTimeout";
-import { LangVariant, ScryfallPrices } from "types";
-import { MTGCard } from "models/MTGCard";
+import { LangVariant, ScryfallData, ScryfallPrices } from "types";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
 import { User } from "models/User";
-import createMTGCard from "utils/cardData/createMTGItemFromScryfallObject";
 import mongoose from "mongoose";
 dotenv.config();
-
+const mongoLocal = 'mongodb://localhost:27017/mtgtracker'
 //Connect to the DB
 const mongoUrl =
-    process.env.MONGO_URI || `mongodb://localhost:27017/mtgtracker`;
+    process.env.NODE_ENV==='test'? mongoLocal : process.env.MONGO_URI || mongoLocal;
 mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -29,27 +27,22 @@ mongoose.set("useFindAndModify", false);
 mongoose.set("useCreateIndex", true);
 ///////////////////////////////////////////
 
-export type FakerMTGCardObject = {
-    cardmarketId: string;
-    scryfallId: string;
-    tcgplayerId: string;
-    oracleId: string;
-    image: string;
-    scryfallPrices: ScryfallPrices;
-    cardName: string;
-    expansion: string;
-};
 export type FakerMTGItem = {
     buyPrice: number;
     targetPrice: number;
     quantity: number;
     language: LangVariant;
     foil: boolean;
-    item: FakerMTGCardObject;
     name: string;
+    scryfallPrices: ScryfallPrices;
+    scryfallId: string;
+    oracleId: string;
+    image: string;
+    expansion: string;
+    tcgplayerId: string;
 };
 
-const fetchCardFromScryfall = async () => {
+const fetchCardFromScryfall = async (): Promise<ScryfallData | null> => {
     try {
         const { data: randomCard } = await axios.get(
             "https://api.scryfall.com/cards/random"
@@ -66,9 +59,10 @@ const fetchCardFromScryfall = async () => {
 export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
     try {
         const newCard = await fetchCardFromScryfall();
-        const { name } = newCard;
+        if (!newCard) return null;
+        const { name, prices, oracle_id, tcgplayer_id, set, id, image_uris } =
+            newCard;
 
-        const mtgCardObject: FakerMTGCardObject = createMTGCard(newCard);
         const buyPrice = faker.datatype.float({
             min: 1,
             max: 100,
@@ -76,13 +70,24 @@ export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
         });
         const targetPrice = parseFloat((buyPrice * 1.5).toFixed(2));
         const newItem: FakerMTGItem = {
-            item: mtgCardObject,
             buyPrice,
             targetPrice,
             quantity: faker.datatype.number({ min: 1, max: 4 }),
             language: "EN",
-            foil: faker.datatype.boolean(),
+            foil: prices?.usd_foil ? faker.datatype.boolean() : false,
             name,
+            expansion: set,
+            oracleId: oracle_id,
+            scryfallId: id,
+            tcgplayerId: tcgplayer_id,
+            scryfallPrices: {
+                eur: parseFloat(prices.eur),
+                usd: parseFloat(prices.usd),
+                usdFoil: parseFloat(prices.usd_foil),
+                eurFoil: parseFloat(prices.eur_foil),
+                tix: parseFloat(prices.tix),
+            },
+            image: image_uris?.normal || "",
         };
         return newItem;
     } catch (error) {
@@ -109,7 +114,7 @@ export const createNewCollection = async (
                 await testTimeout(index * 100);
                 const card = await createNewRandomCard();
                 if (!card) throw new Error("Could not create new card");
-                cards[card.item.scryfallId] = card;
+                cards[card.scryfallId] = card;
                 ordered.push(card);
                 return card;
             })
@@ -166,28 +171,8 @@ export const collectionToMongoDB = async (size: number): Promise<boolean> => {
 
         await Promise.all(
             cards.map(async (card) => {
-                let dbCard = await MTGCard.findOne({
-                    scryfallId: card.item.scryfallId,
-                });
-                if (!dbCard) {
-                    dbCard = await MTGCard.create(card.item);
-                }
-                const {
-                    buyPrice,
-                    targetPrice,
-                    quantity,
-                    language,
-                    foil,
-                    name,
-                } = card;
                 const newItem = await CollectionItem.create({
-                    buyPrice,
-                    targetPrice,
-                    quantity,
-                    language,
-                    foil,
-                    name,
-                    item: dbCard,
+                    ...card,
                     cardCollection: testCollection,
                     owner: testUser,
                 });
@@ -211,4 +196,4 @@ export const collectionToMongoDB = async (size: number): Promise<boolean> => {
 };
 
 // collectionToJSON("test", 10);
-collectionToMongoDB(200).then(() => process.exit());
+collectionToMongoDB(50).then(() => process.exit());
