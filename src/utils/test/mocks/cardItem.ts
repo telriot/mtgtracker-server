@@ -1,4 +1,6 @@
-export const cardItem = {
+import { ScryfallData } from "types";
+
+export const cardItem : ScryfallData = {
    
         name: "Test card",
         prices: {
@@ -16,14 +18,14 @@ export const cardItem = {
         tcgplayer_id: "tcgplayer",
         set: "LRW",
 };
-export const cardItem2 = {
+export const cardItem2 : ScryfallData = {
 
         name: "Test card 2",
         prices: {
-            usd: "1",
-            eur: "2",
-            usd_foil: "2",
-            eur_foil: "2",
+            usd: "4",
+            eur: "5",
+            usd_foil: "10",
+            eur_foil: "20",
             tix: "3",
         },
         id: "baseId2",
@@ -32,11 +34,12 @@ export const cardItem2 = {
             normal: "http://www.google.com",
         },
         tcgplayer_id: "tcgplayer2",
-        set: "LRW",
+        set: "MH1",
 };
 export const cardCreationOptions = {
     buyPrice: 1,
     targetPrice: 2,
     quantity: 3,
     isFoil: false,
+    language:'EN'
 } 

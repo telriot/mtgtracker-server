@@ -121,7 +121,7 @@ export const getCardsFromCollection = async (
     };
     const { minEur, maxEur, minUsd, maxUsd, language, expansion } = query;
     const priceFilters = { minEur, maxEur, minUsd, maxUsd };
-    if (expansion) mongoQuery.expansion = expansion.toString().toLowerCase();
+    if (expansion) mongoQuery.expansion = expansion.toString().toUpperCase();
     if (language) mongoQuery.language = language.toString();
     addPriceFilters(priceFilters, mongoQuery);
 

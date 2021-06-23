@@ -10,7 +10,7 @@ import { ParsedQs } from "qs";
  */
 const addPriceFilters = (
     priceFilters: Record<
-        string,
+        "minUsd" | "maxUsd" | "minEur" | "maxEur",
         string | ParsedQs | string[] | ParsedQs[] | undefined
     >,
     queryObj: Record<string, any>
