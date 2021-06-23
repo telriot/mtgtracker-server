@@ -5,7 +5,17 @@ import { LangVariant } from "../../types";
  * @param cards collection items to summarize
  * @returns a summary of the collection contents
  */
-const calcCollectionSummary = (cards: ICollectionItem[]) => {
+const calcCollectionSummary = (cards: ICollectionItem[]): {
+    maxUsd: number
+    minUsd: number
+    maxEur: number
+    minEur: number
+    totalUsd: string
+    totalEur: string
+    cardsQuantity: number
+    expansions: string[]
+    languages: LangVariant[]
+}=> {
     let maxUsd = 0,
         minUsd = 0,
         maxEur = 0,

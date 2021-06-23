@@ -1,4 +1,4 @@
-import isEmptyObject from "utils/objects/isEmptyObject";
+import isEmptyObject from "../objects/isEmptyObject";
 import minMaxQuery from "./buildMinMaxPriceQuery";
 import { ParsedQs } from "qs";
 
@@ -14,7 +14,7 @@ const addPriceFilters = (
         string | ParsedQs | string[] | ParsedQs[] | undefined
     >,
     queryObj: Record<string, any>
-) => {
+) : void=> {
     if (isEmptyObject(priceFilters) || !queryObj) return;
 
     Object.entries(priceFilters).forEach(([condition, value]) => {
