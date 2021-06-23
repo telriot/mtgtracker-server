@@ -1,4 +1,4 @@
-const cardItem = {
+export const cardItem = {
    
         name: "Test card",
         prices: {
@@ -15,8 +15,6 @@ const cardItem = {
         },
         tcgplayer_id: "tcgplayer",
         set: "LRW",
-
-
 };
 export const cardItem2 = {
 
@@ -36,4 +34,9 @@ export const cardItem2 = {
         tcgplayer_id: "tcgplayer2",
         set: "LRW",
 };
-export default cardItem;
+export const cardCreationOptions = {
+    buyPrice: 1,
+    targetPrice: 2,
+    quantity: 3,
+    isFoil: false,
+} 

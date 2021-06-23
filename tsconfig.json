@@ -30,6 +30,7 @@
       "routes/*":["./routes/*"],
       "utils/arrays/*":["./utils/arrays/*"],
       "utils/cardData/*":["./utils/cardData/*"],
+      "utils/objects/*":["./utils/objects/*"],
       "utils/queries/*":["./utils/queries/*"],
       "utils/time/*":["./utils/time/*"],
       "utils/testTimeout":["./utils/testTimeout"]

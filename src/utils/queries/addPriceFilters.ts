@@ -16,10 +16,10 @@ const addPriceFilters = (
     queryObj: Record<string, any>
 ) => {
     if (isEmptyObject(priceFilters) || !queryObj) return;
-    if (!queryObj["$and"]) queryObj["$and"] = [];
 
     Object.entries(priceFilters).forEach(([condition, value]) => {
         if (value) {
+            if (!queryObj["$and"]) queryObj["$and"] = [];
             const currency = condition.toLowerCase().includes("eur")
                 ? "eur"
                 : "usd";
