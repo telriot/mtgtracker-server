@@ -7,6 +7,7 @@ import { LangVariant, ScryfallData, ScryfallPrices } from "types";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
 import { User } from "models/User";
+import parseScrPrice from "./cardData/parseScrPrice";
 import mongoose from "mongoose";
 dotenv.config();
 const mongoLocal = 'mongodb://localhost:27017/mtgtracker'
@@ -69,23 +70,24 @@ export const createNewRandomCard = async (): Promise<FakerMTGItem | null> => {
             precision: 2,
         });
         const targetPrice = parseFloat((buyPrice * 1.5).toFixed(2));
+        const isFoil =  prices?.usd_foil ? faker.datatype.boolean() : false
         const newItem: FakerMTGItem = {
             buyPrice,
             targetPrice,
             quantity: faker.datatype.number({ min: 1, max: 4 }),
             language: "EN",
-            foil: prices?.usd_foil ? faker.datatype.boolean() : false,
+            foil: isFoil,
             name,
             expansion: set,
             oracleId: oracle_id,
             scryfallId: id,
             tcgplayerId: tcgplayer_id,
             scryfallPrices: {
-                eur: parseFloat(prices.eur),
-                usd: parseFloat(prices.usd),
-                usdFoil: parseFloat(prices.usd_foil),
-                eurFoil: parseFloat(prices.eur_foil),
-                tix: parseFloat(prices.tix),
+                eur: parseScrPrice(prices.eur),
+                usd: parseScrPrice(prices.usd),
+                usdFoil: parseScrPrice(prices.usd_foil),
+                eurFoil: parseScrPrice(prices.eur_foil),
+                tix: parseScrPrice(prices.tix),
             },
             image: image_uris?.normal || "",
         };

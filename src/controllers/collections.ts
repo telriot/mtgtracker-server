@@ -1,6 +1,6 @@
 // import {MTGCollection} from 'models/MTGCollection'
 import { CollectionItem, ICollectionItem } from "models/CollectionItem";
-import { LangVariant, ScryfallData } from "types";
+import { LangVariant, ScryfallData, Price } from "types";
 import { PaginateResult } from "mongoose";
 import { MTGCollection, IMTGCollection } from "models/MTGCollection";
 import { ParsedQs } from "qs";
@@ -10,7 +10,7 @@ import { User } from "models/User";
 import chunk from "utils/arrays/chunk";
 import timeout from "utils/testTimeout";
 import createItemFromScryfall from "utils/cardData/createItemFromScryfall";
-
+import minMaxQuery from "utils/queries/buildMinMaxPriceQuery";
 const getItemIdsToUpdate = (cards: ICollectionItem[]): string[] =>
     cards
         .map((card) =>
@@ -108,28 +108,30 @@ export const getCollectionSummary = async (
         cardsQuantity = 0;
     const expansions: string[] = [],
         languages: LangVariant[] = [];
-    // console.log(cards)
     cards.forEach((card) => {
         const { scryfallPrices, expansion, foil } = card;
         const { language } = card;
-        const usd = scryfallPrices.usd || 0;
-        const eur = scryfallPrices.eur || 0;
-        const usdFoil = scryfallPrices.usdFoil || 0;
-        const eurFoil = scryfallPrices.eurFoil || 0;
+        const parsePrice = (price: Price) => {
+            if (!price || isNaN(price)) return 0;
+            else return price;
+        };
+        const usd = parsePrice(scryfallPrices.usd);
+        const eur = parsePrice(scryfallPrices.eur);
+        const usdFoil = parsePrice(scryfallPrices.usdFoil);
+        const eurFoil = parsePrice(scryfallPrices.eurFoil);
         cardsQuantity += card.quantity;
-
         if (foil) {
             if (usdFoil > maxUsd) maxUsd = usdFoil;
             if (eurFoil > maxEur) maxEur = eurFoil;
-            if (!minUsd || usdFoil < minUsd) minUsd = usdFoil;
-            if (!minEur || eurFoil < minEur) minEur = eurFoil;
+            if (usdFoil < minUsd) minUsd = usdFoil;
+            if (eurFoil < minEur) minEur = eurFoil;
             totalUsd += usdFoil * card.quantity;
             totalEur += eurFoil * card.quantity;
         } else {
             if (usd > maxUsd) maxUsd = usd;
             if (eur > maxEur) maxEur = eur;
-            if (!minUsd || usd < minUsd) minUsd = usd;
-            if (!minEur || eur < minEur) minEur = eur;
+            if (usd < minUsd) minUsd = usd;
+            if (eur < minEur) minEur = eur;
             if (!expansions.includes(expansion)) expansions.push(expansion);
             if (!languages.includes(language)) languages.push(language);
             totalUsd += usd * card.quantity;
@@ -144,8 +146,8 @@ export const getCollectionSummary = async (
             minUsd,
             maxEur,
             minEur,
-            totalUsd,
-            totalEur,
+            totalUsd: totalUsd.toFixed(2),
+            totalEur: totalEur.toFixed(2),
             cardsQuantity,
             expansions,
             languages,
@@ -160,34 +162,37 @@ export const getCardsFromCollection = async (
     const nameRegExp = new RegExp(query.cardName?.toString() || "", "ig");
     const collection = await MTGCollection.findOne({ _id: collectionId });
     if (!collection) throw new Error("Collection not found");
-    console.log(query, "QUERY");
     const mongoQuery: Record<string, any> = {
-        _id: { $in: collection.cards },
+        cardCollection: collectionId,
         name: nameRegExp,
     };
-    if (query.expansion)
-        mongoQuery.expansion = query.expansion.toString().toLowerCase();
-    if (query.language) mongoQuery.language = query.language.toString();
-    if (query.minEur)
-        mongoQuery["scryfallPrices.eur"] = {
-            $gte: parseFloat(query.minEur.toString()),
-        };
-    if (query.maxEur && parseInt(query.maxEur.toString()) > 0)
-        mongoQuery["scryfallPrices.eur"] = {
-            ...mongoQuery["scryfallPrices.eur"],
-            $lte: parseFloat(query.maxEur.toString()),
-        };
-    if (query.minUsd)
-        mongoQuery["scryfallPrices.usd"] = {
-            $gte: parseFloat(query.minUsd.toString()),
-        };
-    if (query.maxUsd && parseInt(query.maxUsd.toString()) > 0)
-        mongoQuery["scryfallPrices.usd"] = {
-            ...mongoQuery["scryfallPrices.usd"],
-            $lte: parseFloat(query.maxUsd.toString()),
-        };
+    const { minEur, maxEur, minUsd, maxUsd, language, expansion } = query;
+    if (expansion) mongoQuery.expansion = expansion.toString().toLowerCase();
+    if (language) mongoQuery.language = language.toString();
+    if (minEur || maxEur || minUsd || maxUsd) {
+        mongoQuery["$and"] = [];
+        if (minEur) {
+            mongoQuery["$and"].push(
+                minMaxQuery(minEur.toString(), "$gte", "scryfallPrices.eur")
+            );
+        }
+        if (maxEur && parseInt(maxEur.toString()) > 0) {
+            mongoQuery["$and"].push(
+                minMaxQuery(maxEur.toString(), "$lte", "scryfallPrices.eur")
+            );
+        }
+        if (minUsd) {
+            mongoQuery["$and"].push(
+                minMaxQuery(minUsd.toString(), "$gte", "scryfallPrices.usd")
+            );
+        }
+        if (maxUsd && parseInt(maxUsd.toString()) > 0) {
+            mongoQuery["$and"].push(
+                minMaxQuery(maxUsd.toString(), "$lte", "scryfallPrices.usd")
+            );
+        }
+    }
 
-    console.log(mongoQuery, "Query");
     const sortByName = { name: "asc" };
     const paginationOptions = {
         limit: Number(query.limit) || 20,
@@ -295,7 +300,6 @@ export const updateCardFromCollection = async (
     }
 ): Promise<{ message: string; cards: PaginateResult<ICollectionItem> }> => {
     await CollectionItem.updateOne({ _id: cardId }, body.update);
-    console.log(body.query, "QUERY");
     const { cards } = await getCardsFromCollection(collectionId, body.query);
     return {
         message: "Card successfully updated",

@@ -2,7 +2,7 @@ import { ICollectionItem } from "models/CollectionItem";
 import { IMTGCollection } from "models/MTGCollection";
 import { IUser } from "models/User";
 import { LangVariant, ScryfallData } from "types";
-
+import parseScrPrice from 'utils/cardData/parseScrPrice'
 export interface CreateItemFromScryfallPayload {
     card: ScryfallData;
     buyPrice: number;
@@ -32,11 +32,11 @@ const createItemFromScryfall = ({
     cardCollection: collection,
     owner: user,
     scryfallPrices: {
-        usd: parseFloat(card.prices.usd),
-        eur: parseFloat(card.prices.eur),
-        usdFoil: parseFloat(card.prices.usd_foil),
-        eurFoil: parseFloat(card.prices.eur_foil),
-        tix: parseFloat(card.prices.tix),
+        usd:parseScrPrice(card.prices.usd),
+        eur: parseScrPrice(card.prices.eur),
+        usdFoil: parseScrPrice(card.prices.usd_foil),
+        eurFoil: parseScrPrice(card.prices.eur_foil),
+        tix: parseScrPrice(card.prices.tix),
     },
     scryfallId: card.id,
     oracleId: card.oracle_id,
