@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         nodejs: [10, 12, 14]
-
+        mongodb-version: [4.2]
     steps:
     - uses: actions/checkout@v2
 
