@@ -18,6 +18,11 @@ jobs:
       with:
         node-version: ${{ matrix.nodejs }}
 
+    - name: Start MongoDB ${{ matrix.mongodb-version }}
+      uses: supercharge/mongodb-github-action@1.3.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
+
     - run: yarn install
     - run: yarn add -D esbuild
     - run: yarn test
