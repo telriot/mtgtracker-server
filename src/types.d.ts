@@ -23,7 +23,7 @@ export type ScryfallPrices = {
     eurFoil: Price;
     tix: Price;
 };
-export type ScryfallData = {
+export type ScryfallCard = {
     name: string;
     prices: {
         usd: string;
@@ -36,5 +36,37 @@ export type ScryfallData = {
     oracle_id: string;
     image_uris: { normal: string };
     tcgplayer_id: string;
-	set:string
+    set: string;
 };
+
+export type ScryfallIdentifier =
+    | { id: string }
+    | { name: string; set: string }
+    | { name: string }
+    | { oracle_id: string }
+    | { multiverse_id: string }
+    | { illustration_id: string }
+    | { collector_number: string; set: string };
+
+export type BulkCardCreationObject = {
+        name: string;
+        quantity: number;
+        expansion: string;
+        language:LangVariant;
+        foil: boolean;
+        buyPrice: number;
+        targetPrice: number;
+    };
+export type BulkCardCreationPayload = BulkCardCreationObject[];
+
+export type CollectionSummary = {
+    maxUsd: number
+    minUsd: number
+    maxEur: number
+    minEur: number
+    totalUsd: number
+    totalEur: number
+    cardsQuantity: number
+    expansions: string[]
+    languages: LangVariant[]
+}

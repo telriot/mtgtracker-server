@@ -1,6 +1,6 @@
-import { ScryfallData } from "types";
+import { ScryfallCard } from "types";
 
-export const cardItem : ScryfallData = {
+export const cardItem : ScryfallCard = {
    
         name: "Test card",
         prices: {
@@ -18,7 +18,7 @@ export const cardItem : ScryfallData = {
         tcgplayer_id: "tcgplayer",
         set: "LRW",
 };
-export const cardItem2 : ScryfallData = {
+export const cardItem2 : ScryfallCard = {
 
         name: "Test card 2",
         prices: {

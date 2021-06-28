@@ -3,7 +3,7 @@ import faker from "faker";
 import axios from "axios";
 import fs from "fs";
 import testTimeout from "utils/testTimeout";
-import { LangVariant, ScryfallData, ScryfallPrices } from "types";
+import { LangVariant, ScryfallCard, ScryfallPrices } from "types";
 import { MTGCollection } from "models/MTGCollection";
 import { CollectionItem } from "models/CollectionItem";
 import { User } from "models/User";
@@ -43,7 +43,7 @@ export type FakerMTGItem = {
     tcgplayerId: string;
 };
 
-const fetchCardFromScryfall = async (): Promise<ScryfallData | null> => {
+const fetchCardFromScryfall = async (): Promise<ScryfallCard | null> => {
     try {
         const { data: randomCard } = await axios.get(
             "https://api.scryfall.com/cards/random"

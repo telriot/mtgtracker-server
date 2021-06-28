@@ -1,6 +1,11 @@
 // import {MTGCollection} from 'models/MTGCollection'
 import { CollectionItem, ICollectionItem } from "models/CollectionItem";
-import { ScryfallData } from "types";
+import {
+    BulkCardCreationPayload,
+    CollectionSummary,
+    ScryfallCard,
+    ScryfallIdentifier,
+} from "types";
 import { PaginateResult } from "mongoose";
 import { MTGCollection, IMTGCollection } from "models/MTGCollection";
 import { ParsedQs } from "qs";
@@ -21,20 +26,28 @@ const getItemIdsToUpdate = (cards: ICollectionItem[]): string[] =>
 
 export const getCardFromScryfall = async (
     id: string
-): Promise<ScryfallData> => {
-    const { data: card } = await axios.get(
-        `https://api.scryfall.com/cards/${id}`
-    );
-    return card;
+): Promise<void | ScryfallCard> => {
+    try {
+        const { data: card } = await axios.get(
+            `https://api.scryfall.com/cards/${id}`
+        );
+        return card;
+    } catch (error) {
+        console.error(error);
+    }
 };
 export const getCollectionFromScryfall = async (
-    identifiers: { id: string }[]
-): Promise<ScryfallData[]> => {
-    const { data: collection } = await axios.post(
-        "https://api.scryfall.com/cards/collection",
-        { identifiers }
-    );
-    return collection.data;
+    identifiers: ScryfallIdentifier[]
+): Promise<void | ScryfallCard[]> => {
+    try {
+        const { data: collection } = await axios.post(
+            "https://api.scryfall.com/cards/collection",
+            { identifiers }
+        );
+        return collection.data;
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 export const getCollection = async (params: {
@@ -58,8 +71,9 @@ export const updateCollectionData = async (
     chunks.forEach(async (chunk, index) => {
         index && (await timeout(100));
         const updates = await getCollectionFromScryfall(chunk);
+        if (!updates) throw new Error("Could not get data from scryfall");
         await Promise.all(
-            updates.map(async (card: ScryfallData) => {
+            updates.map(async (card: ScryfallCard) => {
                 const { usd, eur, tix, usd_foil, eur_foil } = card.prices;
                 await CollectionItem.updateMany(
                     { scryfallId: card.id },
@@ -85,7 +99,7 @@ export const getCollectionSummary = async (
     id: string
 ): Promise<{
     message: string;
-    summary: Record<string, string | number | string[]>;
+    summary: CollectionSummary;
 }> => {
     const collection = await MTGCollection.findById(id);
     if (!collection) {
@@ -150,11 +164,12 @@ export const addCardToCollection = async (
     collectionId: string,
     body: {
         payload: {
-            card: ScryfallData;
+            card: ScryfallCard;
             buyPrice: number;
             targetPrice: number;
             quantity: number;
             isFoil: boolean;
+            expansion: string;
         };
         query: Record<string, any>;
     }
@@ -176,6 +191,65 @@ export const addCardToCollection = async (
     return {
         message: "Card successfully added",
         cards,
+    };
+};
+
+export const addManyCardsToCollection = async (
+    collectionId: string,
+    body: {
+        cards: BulkCardCreationPayload;
+        query: Record<string, any>;
+    }
+): Promise<{
+    message: string;
+    cards: PaginateResult<ICollectionItem>;
+    summary: CollectionSummary;
+}> => {
+    const collection = await MTGCollection.findById(collectionId);
+    if (!collection) throw new Error("No collection to add cards to");
+    const user = await User.findOne({ userName: "testUser" });
+    if (!user) throw new Error("No user to refer to");
+
+    const chunks = chunk(body.cards, 75);
+    const newCards: Partial<ICollectionItem>[] = [];
+    await chunks.forEach(async (chunk, index) => {
+        index && (await timeout(100));
+        const identifiers = chunk.map(({ name, expansion }) =>
+            expansion
+                ? {
+                      name,
+                      set: expansion,
+                  }
+                : { name }
+        );
+        const cardsToAdd = await getCollectionFromScryfall(identifiers);
+        if (!cardsToAdd) throw new Error("Could not get data from scryfall");
+
+        const cardItems = cardsToAdd.map(
+            (card, index) => {
+                const { name, foil, expansion, ...cardData } = chunk[index];
+                return createItemFromScryfall({
+                    card,
+                    ...cardData,
+                    isFoil: foil,
+                    collection,
+                    user,
+                });
+            }
+        );
+        newCards.push(...cardItems);
+    });
+    const newItems = await CollectionItem.insertMany(newCards);
+    await collection.cards.push(...newItems);
+    await collection.save();
+    const [{ cards }, { summary }] = await Promise.all([
+        getCardsFromCollection(collectionId, body.query),
+        getCollectionSummary(collectionId),
+    ]);
+    return {
+        message: "Card successfully added",
+        cards,
+        summary,
     };
 };
 

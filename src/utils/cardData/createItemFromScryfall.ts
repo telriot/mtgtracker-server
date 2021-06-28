@@ -1,10 +1,10 @@
 import { ICollectionItem } from "models/CollectionItem";
 import { IMTGCollection } from "models/MTGCollection";
 import { IUser } from "models/User";
-import { LangVariant, ScryfallData } from "types";
+import { LangVariant, ScryfallCard } from "types";
 import parseScrPrice from 'utils/cardData/parseScrPrice'
 export interface CreateItemFromScryfallPayload {
-    card: ScryfallData;
+    card: ScryfallCard;
     buyPrice: number;
     targetPrice: number;
     quantity: number;

@@ -9,6 +9,7 @@ import {
     getCollectionSummary,
     getCollection,
     updateCardFromCollection,
+    addManyCardsToCollection
 } from "controllers/collections";
 
 router.get(
@@ -26,6 +27,10 @@ router.get(
 router.post(
     "/:id/cards",
     ASH((req) => addCardToCollection(req.params.id, req.body))
+);
+router.post(
+    "/:id/bulk",
+    ASH((req) => addManyCardsToCollection(req.params.id, req.body))
 );
 router.put(
     "/:id/:cardId",

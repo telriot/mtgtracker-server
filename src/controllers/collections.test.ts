@@ -15,7 +15,7 @@ import {
     updateCardFromCollection,
     getCardsFromCollection,
 } from "./collections";
-import { ScryfallData } from "../types";
+import { ScryfallCard } from "../types";
 
 const connection = db();
 let collection: IMTGCollection | null;
@@ -23,7 +23,7 @@ let collection: IMTGCollection | null;
 //UTILS
 const cardPayload = (
     cardName?: string,
-    item: ScryfallData = cardItem
+    item: ScryfallCard = cardItem
 ): any => ({
     payload: {
         card: { ...item, name: cardName || item.name },
@@ -34,7 +34,7 @@ const cardPayload = (
 const createMultipleCards = async (
     collectionId: string,
     cards: string[],
-    item: ScryfallData = cardItem
+    item: ScryfallCard = cardItem
 ) =>
     await Promise.all(
         cards.map(
